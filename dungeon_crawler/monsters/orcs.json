@@ -1,0 +1,59 @@
+{
+    "0": {
+        "character": {
+            "name": "Orc Fighter",
+            "species": "Orc",
+            "specialization": "Fighter",
+            "level": 1
+        },
+        "stats": {
+            "HP": 5,
+            "STR": 10,
+            "DEX": 10,
+            "CON": 10,
+            "INT": 6,
+            "WIS": 6
+        },
+        "equipment": [
+            "Short Sword"
+        ]
+    },
+    "1": {
+        "character": {
+            "name": "Orc Ranger",
+            "species": "Orc",
+            "specialization": "Ranger",
+            "level": 1
+        },
+        "stats": {
+            "HP": 5,
+            "STR": 10,
+            "DEX": 10,
+            "CON": 10,
+            "INT": 6,
+            "WIS": 6
+        },
+        "equipment": [
+            "Short Sword"
+        ]
+    },
+    "2": {
+        "character": {
+            "name": "Orc Mage",
+            "species": "Orc",
+            "specialization": "Mage",
+            "level": 1
+        },
+        "stats": {
+            "HP": 3,
+            "STR": 10,
+            "DEX": 10,
+            "CON": 10,
+            "INT": 6,
+            "WIS": 6
+        },
+        "equipment": [
+            "Short Sword"
+        ]
+    }
+}
