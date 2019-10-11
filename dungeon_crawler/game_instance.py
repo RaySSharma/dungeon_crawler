@@ -1,8 +1,7 @@
-import numpy as np
-
 import tcod
 import tcod.map
 
+from dungeon_crawler import combat
 from dungeon_crawler import config
 from dungeon_crawler.generate_room import Dungeon
 from dungeon_crawler.characters import Character
@@ -34,13 +33,15 @@ class GameInstance:
         self.root_console = root_console
         self.screen_size = screen_size
         self.map_size = map_size
-        self.dungeon = Dungeon(self.console, map_size)
-        self.player = Character(console, self.screen_size[0] / 2,
-                                self.screen_size[1] / 2,
-                                color=config.COLOR_PLAYER, char='@',
-                                blocks=True, character=default_character,
-                                stats=default_stats,
-                                equipment=default_equipment)
+
+        specialization = combat.Fighter(hp=30, defense=2, power=5)
+        self.player = Character(
+            console, self.screen_size[0] / 2, self.screen_size[1] / 2,
+            color=config.COLOR_PLAYER, specialization=specialization,
+            char='@', blocks=True, character=default_character,
+            stats=default_stats, equipment=default_equipment)
+        self.dungeon = Dungeon(self, self.console, map_size)
+
         self.victory = False
         self.failure = False
         self.objects = self.populate_objects()
@@ -117,9 +118,9 @@ class GameInstance:
     def populate_objects(self):
         objects = [self.player]
 
-        for room in self.dungeon.rooms:
-            objects.append(room.encounters)
-        return np.hstack(objects)
+        for enc in self.dungeon.encounters:
+            objects.append(enc)
+        return objects
 
     def detect_collisions(self):
         walkable = self.dungeon.dungeon.walkable.copy()
@@ -131,5 +132,5 @@ class GameInstance:
     def object_actions(self):
         if self.game_state == 'playing' and self.player_action != 'didnt-take-turn':
             for obj in self.objects:
-                if object != self.player:
-                    print('The ' + obj.character['name'] + ' growls!')
+                if obj.ai:
+                    obj.ai.take_turn()
