@@ -37,7 +37,14 @@ class Dungeon:
                 rooms += [
                     Room(self.console, self.dungeon, node, self.map_size)
                 ]
+        self._generate_boundary()
         return rooms
+
+    def _generate_boundary(self):
+        self.dungeon.walkable[:, [0, -1]] = False
+        self.dungeon.walkable[[0, -1], :] = False
+        self.dungeon.transparent[:, [0, -1]] = False
+        self.dungeon.transparent[[0, -1], :] = False
 
     def _generate_encounters(self):
         monsters, monster_coords = [], []
@@ -110,7 +117,7 @@ class Room:
         self._generate_room()
 
     def _generate_room(self):
-        for x in range(self.x1 + 1, self.x2 - 1):
-            for y in range(self.y1 + 1, self.y2 - 1):
+        for x in range(self.x1 + 1, self.x2):
+            for y in range(self.y1 + 1, self.y2):
                 self.dungeon.walkable[x][y] = True
                 self.dungeon.transparent[x][y] = True
