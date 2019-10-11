@@ -1,10 +1,7 @@
 import tcod
 import tcod.map
 
-from dungeon_crawler import combat
-from dungeon_crawler import config
-from dungeon_crawler.generate_room import Dungeon
-from dungeon_crawler.characters import Character
+from dungeon_crawler import config, combat, gui, generate_room, characters
 
 default_character = {
     'name': 'Ray Sharma',
@@ -34,14 +31,15 @@ class GameInstance:
         self.screen_size = screen_size
         self.map_size = map_size
 
-        specialization = combat.Fighter(hp=30, defense=2, power=5)
-        self.player = Character(
+        combatant = combat.BasicCombat(hp=30, defense=2, power=5)
+        self.player = characters.Character(
             console, self.screen_size[0] / 2, self.screen_size[1] / 2,
-            color=config.COLOR_PLAYER, specialization=specialization,
-            char='@', blocks=True, character=default_character,
-            stats=default_stats, equipment=default_equipment)
-        self.dungeon = Dungeon(self, self.console, map_size)
+            color=config.COLOR_PLAYER, combatant=combatant, char='@',
+            blocks=True, character=default_character, stats=default_stats,
+            equipment=default_equipment)
+        self.dungeon = generate_room.Dungeon(self, self.console, map_size)
 
+        self.gui = gui.GUI(self, self.console)
         self.victory = False
         self.failure = False
         self.objects = self.populate_objects()
@@ -59,32 +57,27 @@ class GameInstance:
 
         if self.game_state == 'playing':
             if key.vk == tcod.KEY_UP:
-                if self.walkable[self.player.x + 0][self.player.y - 1]:
-                    self.player.move_or_attack(0, -1, self.objects)
+                self.player.move_or_attack(0, -1, self.walkable, self.objects)
             elif key.vk == tcod.KEY_DOWN:
-                if self.walkable[self.player.x + 0][self.player.y + 1]:
-                    self.player.move_or_attack(0, 1, self.objects)
+                self.player.move_or_attack(0, 1, self.walkable, self.objects)
             elif key.vk == tcod.KEY_LEFT:
-                if self.walkable[self.player.x - 1][self.player.y + 0]:
-                    self.player.move_or_attack(-1, 0, self.objects)
+                self.player.move_or_attack(-1, 0, self.walkable, self.objects)
             elif key.vk == tcod.KEY_RIGHT:
-                if self.walkable[self.player.x + 1][self.player.y + 0]:
-                    self.player.move_or_attack(1, 0, self.objects)
+                self.player.move_or_attack(1, 0, self.walkable, self.objects)
             else:
                 return 'didnt-take-turn'
 
     def render(self):
-        visible = tcod.map.compute_fov(self.dungeon.dungeon.transparent,
-                                       pov=(self.player.x, self.player.y),
-                                       radius=config.TORCH_RADIUS,
-                                       light_walls=config.FOV_LIGHT_WALLS,
-                                       algorithm=config.FOV_ALGO)
+        self.dungeon.fov = tcod.map.compute_fov(
+            self.dungeon.dungeon.transparent,
+            pov=(self.player.x, self.player.y), radius=config.TORCH_RADIUS,
+            light_walls=config.FOV_LIGHT_WALLS, algorithm=config.FOV_ALGO)
 
-        self.dungeon.explored |= visible
+        self.dungeon.explored |= self.dungeon.fov
 
         for y in range(self.map_size[1]):
             for x in range(self.map_size[0]):
-                if not visible[x][y]:
+                if not self.dungeon.fov[x][y]:
                     if self.dungeon.explored[x][y]:
                         color_wall = config.COLOR_EXPLORED_WALL
                         color_ground = config.COLOR_EXPLORED_GROUND
@@ -106,10 +99,29 @@ class GameInstance:
                                                      tcod.BKGND_SET)
 
         for obj in self.objects:
-            obj.draw()
+            if obj.state == 'dead':
+                obj.draw()
+        for obj in self.objects:
+            if (obj.state == 'alive') and (obj != self.player):
+                obj.draw()
+
+        self.player.draw()
 
         self.console.blit(self.root_console, 0, 0, 0, 0, self.screen_size[0],
                           self.screen_size[1])
+
+        self.console.default_fg = tcod.white
+        self.console.default_bg = tcod.grey
+        self.gui.panel.clear()
+
+        # show the player's stats
+        self.gui.render_bar(1, 1, config.BAR_WIDTH, 'HP',
+                            self.player.combatant.hp,
+                            self.player.combatant.max_hp, config.HP_FG_COLOR,
+                            config.PANEL_BG_COLOR)
+
+        self.gui.panel.blit(self.root_console, 0, config.PANEL_Y, 0, 0,
+                            config.SCREEN_WIDTH, config.PANEL_HEIGHT)
 
     def clear(self):
         for obj in self.objects:

@@ -17,8 +17,8 @@ if __name__ == '__main__':
                                           root_console=root_console,
                                           screen_size=screen_size,
                                           map_size=map_size,
-                                          game_state = 'playing',
-                                          player_action = None)
+                                          game_state='playing',
+                                          player_action=None)
 
         while not tcod.console_is_window_closed():
             game.render()
@@ -29,4 +29,7 @@ if __name__ == '__main__':
             game.object_actions()
 
             if game.player_action == 'exit':
+                break
+
+            if game.player.state == 'dead':
                 break

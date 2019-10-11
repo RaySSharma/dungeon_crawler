@@ -2,9 +2,7 @@ import numpy as np
 import tcod.bsp
 import tcod.map
 
-from dungeon_crawler import combat
-from dungeon_crawler import config
-from dungeon_crawler import characters
+from dungeon_crawler import AI, combat, config, characters
 
 
 class Dungeon:
@@ -14,8 +12,8 @@ class Dungeon:
         self.map_size = map_size
         self.dungeon = self._generate_map()
         self.rooms = self._generate_tree_rooms()
-        self.explored = np.zeros(self.dungeon.transparent.shape, dtype=bool,
-                                 order='F')
+        self.explored = self.dungeon.fov
+        self.fov = self.dungeon.fov
         self.encounters = self._generate_encounters()
 
     def _generate_map(self):
@@ -54,11 +52,11 @@ class Dungeon:
                         monster_coords.append((x, y))
                         break
 
-                ai = combat.BasicMonster(self.game, self.dungeon)
-                specialization = combat.Fighter(hp=30, defense=2, power=5)
+                ai = AI.BasicMonster(self.game, self.fov)
+                combatant = combat.BasicCombat(hp=30, defense=2, power=5)
                 monster = characters.Monster(self.console, x, y,
-                                             color=tcod.darker_green,
-                                             specialization=specialization,
+                                             color=tcod.red,
+                                             combatant=combatant,
                                              char='T', blocks=True, ai=ai)
                 monsters.append(monster)
         return monsters
@@ -112,7 +110,7 @@ class Room:
         self._generate_room()
 
     def _generate_room(self):
-        for x in range(self.x1 + 1, self.x2):
-            for y in range(self.y1 + 1, self.y2):
+        for x in range(self.x1 + 1, self.x2 - 1):
+            for y in range(self.y1 + 1, self.y2 - 1):
                 self.dungeon.walkable[x][y] = True
                 self.dungeon.transparent[x][y] = True

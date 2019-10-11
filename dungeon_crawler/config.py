@@ -8,6 +8,7 @@ COLOR_LIGHT_WALL = tcod.Color(130, 110, 50)
 COLOR_LIGHT_GROUND = tcod.Color(200, 180, 50)
 COLOR_EXPLORED_WALL = tcod.Color(0, 0, 150)
 COLOR_EXPLORED_GROUND = tcod.Color(100, 100, 150)
+DEATH_COLOR = tcod.dark_red
 
 FOV_ALGO = tcod.FOV_SHADOW
 FOV_LIGHT_WALLS = True
@@ -17,35 +18,14 @@ SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 50
 
 MAP_WIDTH = 80
-MAP_HEIGHT = 50
+MAP_HEIGHT = 43
 
+BAR_WIDTH = 20
+PANEL_HEIGHT = SCREEN_HEIGHT - MAP_HEIGHT
+PANEL_Y = SCREEN_HEIGHT - PANEL_HEIGHT
+
+HP_FG_COLOR = tcod.light_red
+PANEL_BG_COLOR = tcod.grey
 MAX_ROOM_MONSTERS = 3
 
 MONSTER_DIR = path.join(path.dirname(__file__), 'monsters/')
-
-
-
-class Config:
-    def __init__(self):
-        self.colors = {
-            'COLOR_DARK_WALL': COLOR_DARK_WALL,
-            'COLOR_DARK_GROUND': COLOR_DARK_GROUND,
-            'COLOR_LIGHT_WALL': COLOR_LIGHT_WALL,
-            'COLOR_LIGHT_GROUND': COLOR_LIGHT_GROUND,
-            'COLOR_EXPLORED_WALL': COLOR_EXPLORED_WALL,
-            'COLOR_EXPLORED_GROUND': COLOR_EXPLORED_GROUND,
-            'COLOR_PLAYER': COLOR_PLAYER
-        }
-
-        self.fov = {
-            'FOV_ALGO': FOV_ALGO,
-            'FOV_LIGHT_WALLS': FOV_LIGHT_WALLS,
-            'TORCH_RADIUS': TORCH_RADIUS
-        }
-
-        self.size = {
-            'SCREEN_WIDTH': SCREEN_WIDTH,
-            'SCREEN_HEIGHT': SCREEN_HEIGHT,
-            'MAP_WIDTH': MAP_WIDTH,
-            'MAP_HEIGHT': MAP_HEIGHT
-        }

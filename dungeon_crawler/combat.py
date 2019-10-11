@@ -1,30 +1,29 @@
-import tcod
-from dungeon_crawler import config
-
-
-class Fighter:
+class BasicCombat:
     def __init__(self, hp, defense, power):
+        self.owner = None
+        self.death_function = None
         self.max_hp = hp
         self.hp = hp
         self.defense = defense
         self.power = power
 
+    def take_damage(self, damage):
+        # apply damage if possible
+        self.death_function = self.owner.death
+        if self.hp - damage <= 0:
+            self.death_function()
+        else:
+            self.hp -= damage
 
-class BasicMonster:
-    def __init__(self, game, dungeon):
-        self.player = game.player
-        self.dungeon = dungeon
-        self.fov_map = self.dungeon.fov
+    def attack(self, target):
+        # a simple formula for attack damage
+        damage = self.power - target.combatant.defense
 
-    # AI for a basic monster.
-    def take_turn(self):
-        # a basic monster takes its turn. If you can see it, it can see you
-        monster = self.owner
-        if self.fov_map[monster.x][monster.y]:
-            # move towards player if far away
-            if monster.distance_to(self.player) >= 2:
-                monster.move_towards(self.player.x, self.player.y)
-
-            # close enough, attack! (if the player is still alive.)
-            elif self.player.fighter.hp > 0:
-                print('The attack of the ' + monster.name + ' bounces off your shiny metal armor!')
+        if damage > 0:
+            # make the target take some damage
+            print(self.owner.name + ' attacks ' + target.name + ' for ' +
+                  str(damage) + ' hit points.')
+            target.combatant.take_damage(damage)
+        else:
+            print(self.owner.name + ' attacks ' + target.name +
+                  ' but it has no effect!')

@@ -7,22 +7,24 @@ from dungeon_crawler import config
 
 
 class Character:
-    def __init__(self, console, x, y, color=(100, 0, 0), specialization=None,
+    def __init__(self, console, x, y, color=(100, 0, 0), combatant=None,
                  char='@', blocks=False, character=None, stats=None,
-                 equipment=None, ai=None):
+                 equipment=None, ai=None, state='alive'):
         self.console = console
         self.character = character
         self.stats = stats
         self.equipment = equipment
+        self.name = self.character['name']
         self.x = int(x)
         self.y = int(y)
         self.color = color
         self.char = ord(char)
         self.blocks = blocks
+        self.state = state
 
-        self.specialization = specialization
-        if self.specialization:  # let the fighter component know who owns it
-            self.specialization.owner = self
+        self.combatant = combatant
+        if self.combatant:  # let the fighter component know who owns it
+            self.combatant.owner = self
 
         self.ai = ai
         if self.ai:  # let the AI component know who owns it
@@ -35,44 +37,50 @@ class Character:
     def clear(self):
         self.console.put_char(self.x, self.y, ord(' '), tcod.BKGND_NONE)
 
-    def move_or_attack(self, dx, dy, objects):
-
-        x = self.x + dx
-        y = self.y + dy
-
+    def move_or_attack(self, dx, dy, walkable, objects):
         # try to find an attackable object there
         target = None
         for obj in objects:
-            if obj.x == x and obj.y == y:
+            if obj.combatant and (obj.x == self.x +
+                                  dx) and (obj.y == self.y + dy):
                 target = obj
                 break
         # attack if target found, move otherwise
         if target is not None:
-            print('The ' + target.character['name'] +
-                  ' laughs at your puny efforts to attack him!')
-
-        else:
+            self.combatant.attack(target)
+        elif walkable[self.x + dx][self.y + dy]:
             self.x += dx
             self.y += dy
+        else:
+            pass
+
+    def death(self):
+        print(self.name, 'died!')
+        self.state = 'dead'
+        # for added effect, transform the player into a corpse!
+        self.char = ord('%')
+        self.color = config.DEATH_COLOR
 
 
 class Monster:
-    def __init__(self, console, x, y, color=(100, 0, 0), specialization=None,
-                 char='o', blocks=True, ai=None):
+    def __init__(self, console, x, y, color=(100, 0, 0), combatant=None,
+                 char='o', blocks=True, ai=None, state='alive'):
         self.console = console
         self.monster = self._generate()
         self.character = self.monster['character']
         self.stats = self.monster['stats']
         self.equipment = self.monster['equipment']
+        self.name = self.character['name']
         self.x = int(x)
         self.y = int(y)
         self.color = color
         self.char = ord(char)
         self.blocks = blocks
+        self.state = state
 
-        self.specialization = specialization
-        if self.specialization:  # let the fighter component know who owns it
-            self.specialization.owner = self
+        self.combatant = combatant
+        if self.combatant:  # let the fighter component know who owns it
+            self.combatant.owner = self
 
         self.ai = ai
         if self.ai:  # let the AI component know who owns it
@@ -124,3 +132,12 @@ class Monster:
         self.x += dx
         self.y += dy
 
+    def death(self):
+        print(self.name, 'is dead!')
+        self.char = ord('%')
+        self.color = config.DEATH_COLOR
+        self.blocks = False
+        self.combatant = None
+        self.ai = None
+        self.name = 'remains of ' + self.name
+        self.state = 'dead'
