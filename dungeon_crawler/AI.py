@@ -1,18 +1,15 @@
+import pdb
+
 class BasicMonster:
-    def __init__(self, game, fov):
+    def __init__(self):
         self.owner = None
-        self.player = game.player
-        self.fov_map = fov
 
-    # AI for a basic monster.
     def take_turn(self):
-        # a basic monster takes its turn. If you can see it, it can see you
         monster = self.owner
-        if self.fov_map[monster.x][monster.y]:
-            # move towards player if far away
-            if monster.distance_to(self.player) >= 2:
-                monster.move_towards(self.player.x, self.player.y)
+        player = self.owner.owner.owner.player
+        if monster.owner.fov[monster.x][monster.y]:
+            if monster.distance_to(player) >= 2:
+                monster.move_towards(player.x, player.y)
 
-            # close enough, attack! (if the player is still alive.)
-            elif self.player.combatant.hp >= 0:
-                monster.combatant.attack(self.player)
+            elif player.combatant.hp >= 0:
+                monster.combatant.attack(player)

@@ -1,7 +1,8 @@
 import tcod
 import tcod.map
+import textwrap
 
-from dungeon_crawler import config, combat, gui, generate_room, characters
+from dungeon_crawler import config, combat, gui, generate_room, characters, input_handler
 
 default_character = {
     'name': 'Ray Sharma',
@@ -31,13 +32,16 @@ class GameInstance:
         self.screen_size = screen_size
         self.map_size = map_size
 
+        self.input_handler = input_handler.InputHandler(console)
+        self.input_handler.owner = self
+
         combatant = combat.BasicCombat(hp=30, defense=2, power=5)
         self.player = characters.Character(
-            console, self.screen_size[0] / 2, self.screen_size[1] / 2,
+            self.screen_size[0] / 2, self.screen_size[1] / 2,
             color=config.COLOR_PLAYER, combatant=combatant, char='@',
             blocks=True, character=default_character, stats=default_stats,
             equipment=default_equipment)
-        self.dungeon = generate_room.Dungeon(self, self.console, map_size)
+        self.dungeon = generate_room.Dungeon(self, map_size)
 
         self.gui = gui.GUI(self, self.console)
         self.victory = False
@@ -46,26 +50,7 @@ class GameInstance:
         self.walkable = self.dungeon.dungeon.walkable
         self.player_action = player_action
         self.game_state = game_state
-
-    def handle_keys(self):
-        key = tcod.console_wait_for_keypress(True)
-        if key.vk == tcod.KEY_ENTER and key.lalt:
-            tcod.console_set_fullscreen(not tcod.console_is_fullscreen())
-
-        elif key.vk == tcod.KEY_ESCAPE:
-            return 'exit'
-
-        if self.game_state == 'playing':
-            if key.vk == tcod.KEY_UP:
-                self.player.move_or_attack(0, -1, self.walkable, self.objects)
-            elif key.vk == tcod.KEY_DOWN:
-                self.player.move_or_attack(0, 1, self.walkable, self.objects)
-            elif key.vk == tcod.KEY_LEFT:
-                self.player.move_or_attack(-1, 0, self.walkable, self.objects)
-            elif key.vk == tcod.KEY_RIGHT:
-                self.player.move_or_attack(1, 0, self.walkable, self.objects)
-            else:
-                return 'didnt-take-turn'
+        self.game_msgs = []
 
     def render(self):
         self.dungeon.fov = tcod.map.compute_fov(
@@ -101,6 +86,7 @@ class GameInstance:
         for obj in self.objects:
             if obj.state == 'dead':
                 obj.draw()
+
         for obj in self.objects:
             if (obj.state == 'alive') and (obj != self.player):
                 obj.draw()
@@ -110,8 +96,6 @@ class GameInstance:
         self.console.blit(self.root_console, 0, 0, 0, 0, self.screen_size[0],
                           self.screen_size[1])
 
-        self.console.default_fg = tcod.white
-        self.console.default_bg = tcod.grey
         self.gui.panel.clear()
 
         # show the player's stats
@@ -120,6 +104,7 @@ class GameInstance:
                             self.player.combatant.max_hp, config.HP_FG_COLOR,
                             config.PANEL_BG_COLOR)
 
+        self.gui.render_messages(self.game_msgs)
         self.gui.panel.blit(self.root_console, 0, config.PANEL_Y, 0, 0,
                             config.SCREEN_WIDTH, config.PANEL_HEIGHT)
 
@@ -132,6 +117,10 @@ class GameInstance:
 
         for enc in self.dungeon.encounters:
             objects.append(enc)
+
+        for obj in objects:
+            obj.owner = self.dungeon
+
         return objects
 
     def detect_collisions(self):
@@ -142,7 +131,17 @@ class GameInstance:
         self.walkable = walkable
 
     def object_actions(self):
-        if self.game_state == 'playing' and self.player_action != 'didnt-take-turn':
+        if (self.game_state == 'playing') and (self.player_action != 'didnt-take-turn'):
             for obj in self.objects:
                 if obj.ai:
                     obj.ai.take_turn()
+
+    def print(self, *args, color=tcod.white):
+        string = ' '.join([str(arg) for arg in args])
+        msg_lines = textwrap.wrap(string, config.MSG_WIDTH)
+
+        for line in msg_lines:
+            if len(self.game_msgs) == config.MSG_HEIGHT:
+                del self.game_msgs[0]
+
+            self.game_msgs.append((line, color))

@@ -1,6 +1,7 @@
 from os import path
 import tcod
 
+# Colors
 COLOR_PLAYER = tcod.Color(200, 0, 0)
 COLOR_DARK_WALL = tcod.Color(50, 50, 150)
 COLOR_DARK_GROUND = tcod.Color(50, 50, 150)
@@ -10,22 +11,30 @@ COLOR_EXPLORED_WALL = tcod.Color(0, 0, 150)
 COLOR_EXPLORED_GROUND = tcod.Color(100, 100, 150)
 DEATH_COLOR = tcod.dark_red
 
+# FOV
 FOV_ALGO = tcod.FOV_SHADOW
 FOV_LIGHT_WALLS = True
 TORCH_RADIUS = 4
 
+# Screen
 SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 50
 
 MAP_WIDTH = 80
 MAP_HEIGHT = 43
 
+# GUI
 BAR_WIDTH = 20
 PANEL_HEIGHT = SCREEN_HEIGHT - MAP_HEIGHT
 PANEL_Y = SCREEN_HEIGHT - PANEL_HEIGHT
 
-HP_FG_COLOR = tcod.light_red
-PANEL_BG_COLOR = tcod.grey
+HP_FG_COLOR = tcod.darker_red
+PANEL_BG_COLOR = tcod.darker_grey
 MAX_ROOM_MONSTERS = 3
 
+MSG_X = BAR_WIDTH + 2
+MSG_WIDTH = SCREEN_WIDTH - BAR_WIDTH - 2
+MSG_HEIGHT = PANEL_HEIGHT - 1
+
+# Monsters
 MONSTER_DIR = path.join(path.dirname(__file__), 'monsters/')

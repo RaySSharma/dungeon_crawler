@@ -1,7 +1,7 @@
 import tcod
+import tcod.event
 
-from dungeon_crawler import game_instance
-from dungeon_crawler import config
+from dungeon_crawler import config, game_instance
 
 if __name__ == '__main__':
     screen_size = (config.SCREEN_WIDTH, config.SCREEN_HEIGHT)
@@ -19,17 +19,16 @@ if __name__ == '__main__':
                                           map_size=map_size,
                                           game_state='playing',
                                           player_action=None)
+        game.print('You enter the dungeon.', color=tcod.white)
 
         while not tcod.console_is_window_closed():
             game.render()
             tcod.console_flush()
             game.clear()
-            game.player_action = game.handle_keys()
-            game.detect_collisions()
-            game.object_actions()
-
-            if game.player_action == 'exit':
-                break
+            valid_input = game.input_handler.check_input()
+            if valid_input:
+                game.detect_collisions()
+                game.object_actions()
 
             if game.player.state == 'dead':
                 break

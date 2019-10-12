@@ -6,9 +6,9 @@ from dungeon_crawler import AI, combat, config, characters
 
 
 class Dungeon:
-    def __init__(self, game, console, map_size):
-        self.game = game
-        self.console = console
+    def __init__(self, game, map_size):
+        self.owner = game
+        self.console = self.owner.console
         self.map_size = map_size
         self.dungeon = self._generate_map()
         self.rooms = self._generate_tree_rooms()
@@ -59,12 +59,12 @@ class Dungeon:
                         monster_coords.append((x, y))
                         break
 
-                ai = AI.BasicMonster(self.game, self.fov)
+                ai = AI.BasicMonster()
                 combatant = combat.BasicCombat(hp=30, defense=2, power=5)
-                monster = characters.Monster(self.console, x, y,
+                monster = characters.Monster(x, y,
                                              color=tcod.red,
-                                             combatant=combatant,
-                                             char='T', blocks=True, ai=ai)
+                                             combatant=combatant, char='T',
+                                             blocks=True, ai=ai)
                 monsters.append(monster)
         return monsters
 
