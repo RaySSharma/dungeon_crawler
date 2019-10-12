@@ -1,6 +1,4 @@
-import tcod
-import tcod.event
-
+import tcod.console
 from dungeon_crawler import config, game_instance
 
 if __name__ == '__main__':
@@ -11,7 +9,7 @@ if __name__ == '__main__':
                                 renderer=tcod.RENDERER_SDL2,
                                 order='F') as root_console:
 
-        console = tcod.console_new(screen_size[0], screen_size[1])
+        console = tcod.console.Console(screen_size[0], screen_size[1], order='F')
 
         game = game_instance.GameInstance(console=console,
                                           root_console=root_console,

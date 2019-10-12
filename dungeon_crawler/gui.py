@@ -24,7 +24,6 @@ class GUI:
                          string=name + ': ' + str(value) + '/' + str(maximum),
                          bg_blend=tcod.BKGND_NONE, alignment=tcod.CENTER)
 
-
     def render_messages(self, game_msgs):
         y = 1
         for (line, color) in game_msgs:

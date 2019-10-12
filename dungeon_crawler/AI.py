@@ -1,5 +1,3 @@
-import pdb
-
 class BasicMonster:
     def __init__(self):
         self.owner = None
