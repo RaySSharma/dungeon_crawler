@@ -7,11 +7,11 @@ if __name__ == '__main__':
 
     with tcod.console_init_root(screen_size[0], screen_size[1],
                                 renderer=tcod.RENDERER_SDL2,
-                                order='F') as root_console:
+                                order='F', vsync=True) as root_console:
         game = game_instance.GameInstance(root_console)
         game.gui.print('You enter the dungeon.', color=tcod.white)
 
-        while not tcod.console_is_window_closed():
+        while True:
             game.render()
             tcod.console_flush()
             game.clear()

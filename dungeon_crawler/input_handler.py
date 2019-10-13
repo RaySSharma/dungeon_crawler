@@ -30,6 +30,9 @@ class InputHandler(tcod.event.EventDispatch):
                                                          tcod.event.KMOD_LALT):
             tcod.console_set_fullscreen(not tcod.console_is_fullscreen())
 
+        elif scancode == tcod.event.SCANCODE_I:
+            self.owner.gui.inventory_menu('Press the key next to an item to use it, or any other to cancel.\n')
+
         elif scancode == tcod.event.SCANCODE_ESCAPE:
             print('Exiting')
             raise SystemExit()

@@ -2,7 +2,7 @@ from os import path
 import tcod
 
 # Game
-DIAGONAL = True
+DIAGONAL = False
 MAX_ROOM_ITEMS = 2
 MAX_ROOM_MONSTERS = 3
 
@@ -41,6 +41,8 @@ SCREEN_HEIGHT = 50
 
 MAP_WIDTH = 80
 MAP_HEIGHT = 43
+
+INVENTORY_WIDTH = 50
 
 # GUI
 BAR_WIDTH = 20

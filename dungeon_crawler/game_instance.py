@@ -18,7 +18,7 @@ default_stats = {
     'WIS': 10
 }
 
-default_inventory = ['Short Sword']
+default_inventory = []
 
 
 class GameInstance:
@@ -48,8 +48,13 @@ class GameInstance:
         self.game_state = 'playing'
         self.game_msgs = []
         self.names_under_mouse = None
-        self.mouse_x = 1
+        self.mouse_x = 0
         self.mouse_y = 0
+
+        item = objects.Item(0, 0, 'Healing Potion')
+        item.owner = self.dungeon
+        self.objects.append(item)
+        item.pick_up()
 
     def render(self):
         self.console.clear()

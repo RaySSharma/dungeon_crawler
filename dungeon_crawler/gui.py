@@ -68,3 +68,34 @@ class GUI:
             self.owner.names_under_mouse = None
         else:
             pass
+
+    def render_menu(self, header, options, width):
+        header_height = self.owner.console.get_height_rect(0, 0, width, config.SCREEN_HEIGHT, header)
+        height = len(options) + header_height
+
+        window = tcod.console.Console(width, height)
+
+        window.default_fg = tcod.white
+        window.print_rect(0, 0, width, height, string=header, bg_blend=tcod.BKGND_NONE, alignment=tcod.LEFT)
+        y = header_height
+        letter_index = ord('a')
+        for option_text in options:
+            text = '(' + chr(letter_index) + ') ' + option_text
+            window.print(0, y, string=text, bg_blend=tcod.BKGND_SET, alignment=tcod.LEFT)
+            y += 1
+            letter_index += 1
+
+        x = int(config.SCREEN_WIDTH / 2 - width / 2)
+        y = int(config.SCREEN_HEIGHT / 2 - height / 2)
+        window.blit(self.owner.root_console, dest_x=x, dest_y=y, src_x=0, src_y=0, width=width, height=height,
+                    fg_alpha=1.0, bg_alpha=0.7)
+        tcod.console_flush()
+        tcod.console_wait_for_keypress(True)
+
+    def inventory_menu(self, header):
+        # show a menu with each item of the inventory as an option
+        if len(self.owner.player.inventory) == 0:
+            options = ['Inventory is empty.']
+        else:
+            options = [item.name for item in self.owner.player.inventory]
+        self.render_menu(header, options, config.INVENTORY_WIDTH)
