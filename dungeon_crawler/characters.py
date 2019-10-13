@@ -7,9 +7,9 @@ from dungeon_crawler import config
 
 
 class Character:
-    def __init__(self, x, y, color=(100, 0, 0), combatant=None,
-                 char='@', blocks=False, character=None, stats=None,
-                 equipment=None, ai=None, state='alive'):
+    def __init__(self, x, y, color=(100, 0, 0), combatant=None, char='@',
+                 blocks=False, character=None, stats=None, equipment=None,
+                 ai=None, state='alive'):
         self.owner = None
         self.character = character
         self.stats = stats
@@ -40,8 +40,8 @@ class Character:
     def move_or_attack(self, dx, dy):
         target = None
         for obj in self.owner.owner.objects:
-            if obj.combatant and (obj.x == self.x +
-                                  dx) and (obj.y == self.y + dy):
+            if obj.combatant and (obj.x == self.x + dx) and (obj.y == self.y +
+                                                             dy):
                 target = obj
                 break
         if target is not None:
@@ -53,15 +53,16 @@ class Character:
             pass
 
     def death(self):
-        self.owner.owner.print(self.name, 'died!')
+        game = self.owner.owner
+        game.gui.print(self.name, 'died!')
         self.state = 'dead'
         self.char = ord('%')
-        self.color = config.DEATH_COLOR
+        self.color = config.COLOR_DEATH
 
 
 class Monster:
-    def __init__(self, x, y, color=(100, 0, 0), combatant=None,
-                 char='o', blocks=True, ai=None, state='alive'):
+    def __init__(self, x, y, color=(100, 0, 0), combatant=None, char='o',
+                 blocks=True, ai=None, state='alive'):
         self.owner = None
         self.monster = self._generate()
         self.character = self.monster['character']
@@ -102,10 +103,16 @@ class Monster:
 
     def draw(self):
         self.owner.owner.console.default_fg = self.color
-        self.owner.owner.console.put_char(self.x, self.y, self.char, tcod.BKGND_NONE)
+        if self.owner.half_fov[self.x][self.y]:
+            self.color = config.COLOR_MONSTERS
+        else:
+            self.color = config.COLOR_DARK_GROUND
+        self.owner.owner.console.put_char(self.x, self.y, self.char,
+                                          tcod.BKGND_NONE)
 
     def clear(self):
-        self.owner.owner.console.put_char(self.x, self.y, ord(' '), tcod.BKGND_NONE)
+        self.owner.owner.console.put_char(self.x, self.y, ord(' '),
+                                          tcod.BKGND_NONE)
 
     def move_towards(self, target_x, target_y):
         # vector from this object to the target, and distance
@@ -128,9 +135,10 @@ class Monster:
             self.y += dy
 
     def death(self):
-        self.owner.print(self.name, 'is dead!')
+        game = self.owner.owner
+        game.gui.print(self.name, 'is dead!')
         self.char = ord('%')
-        self.color = config.DEATH_COLOR
+        self.color = config.COLOR_DEATH
         self.blocks = False
         self.combatant = None
         self.ai = None

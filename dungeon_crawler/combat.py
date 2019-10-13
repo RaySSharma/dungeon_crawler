@@ -4,6 +4,8 @@ class BasicCombat:
         self.death_function = None
         self.max_hp = hp
         self.hp = hp
+        self.mp = 10
+        self.max_mp = 10
         self.defense = defense
         self.power = power
 
@@ -15,10 +17,11 @@ class BasicCombat:
             self.hp -= damage
 
     def attack(self, target):
+        game = self.owner.owner.owner
         damage = self.power - target.combatant.defense
 
         if damage > 0:
-            self.owner.owner.owner.print(self.owner.name, 'attacks', target.name, 'for', damage, 'hit points.')
+            game.gui.print(self.owner.name, 'attacks', target.name, 'for', damage, 'hit points.')
             target.combatant.take_damage(damage)
         else:
-            self.owner.owner.owner.print(self.owner.name, 'attacks', target.name, 'but it has no effect!')
+            game.gui.print(self.owner.name, 'attacks', target.name, 'but it has no effect!')

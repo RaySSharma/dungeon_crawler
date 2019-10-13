@@ -8,16 +8,8 @@ if __name__ == '__main__':
     with tcod.console_init_root(screen_size[0], screen_size[1],
                                 renderer=tcod.RENDERER_SDL2,
                                 order='F') as root_console:
-
-        console = tcod.console.Console(screen_size[0], screen_size[1], order='F')
-
-        game = game_instance.GameInstance(console=console,
-                                          root_console=root_console,
-                                          screen_size=screen_size,
-                                          map_size=map_size,
-                                          game_state='playing',
-                                          player_action=None)
-        game.print('You enter the dungeon.', color=tcod.white)
+        game = game_instance.GameInstance(root_console)
+        game.gui.print('You enter the dungeon.', color=tcod.white)
 
         while not tcod.console_is_window_closed():
             game.render()

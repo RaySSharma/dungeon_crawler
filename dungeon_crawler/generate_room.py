@@ -6,25 +6,26 @@ from dungeon_crawler import AI, combat, config, characters
 
 
 class Dungeon:
-    def __init__(self, game, map_size):
+    def __init__(self, game):
         self.owner = game
         self.console = self.owner.console
-        self.map_size = map_size
         self.dungeon = self._generate_map()
         self.rooms = self._generate_tree_rooms()
         self.explored = self.dungeon.fov
         self.fov = self.dungeon.fov
+        self.half_fov = self.dungeon.fov
         self.encounters = self._generate_encounters()
 
-    def _generate_map(self):
-        return tcod.map.Map(width=self.map_size[0], height=self.map_size[1],
+    @staticmethod
+    def _generate_map():
+        return tcod.map.Map(width=config.MAP_WIDTH, height=config.MAP_HEIGHT,
                             order='F')
 
     def _generate_tree_rooms(self, depth=5, min_width=3, min_height=3,
                              max_horizontal_ratio=1.5, max_vertical_ratio=1.5):
         rooms = []
-        bsp = tcod.bsp.BSP(x=0, y=0, width=self.map_size[0],
-                           height=self.map_size[1])
+        bsp = tcod.bsp.BSP(x=0, y=0, width=config.MAP_WIDTH,
+                           height=config.MAP_HEIGHT)
         bsp.split_recursive(depth=depth, min_width=min_width,
                             min_height=min_height,
                             max_horizontal_ratio=max_horizontal_ratio,
@@ -34,9 +35,7 @@ class Dungeon:
                 node1, node2 = node.children
                 Door(self.dungeon, node, node1, node2)
             else:
-                rooms += [
-                    Room(self.console, self.dungeon, node, self.map_size)
-                ]
+                rooms += [Room(self.console, self.dungeon, node)]
         self._generate_boundary()
         return rooms
 
@@ -62,7 +61,7 @@ class Dungeon:
                 ai = AI.BasicMonster()
                 combatant = combat.BasicCombat(hp=30, defense=2, power=5)
                 monster = characters.Monster(x, y,
-                                             color=tcod.red,
+                                             color=config.COLOR_DARK_GROUND,
                                              combatant=combatant, char='T',
                                              blocks=True, ai=ai)
                 monsters.append(monster)
@@ -105,7 +104,7 @@ class Door:
 
 
 class Room:
-    def __init__(self, console, dungeon, node, map_size):
+    def __init__(self, console, dungeon, node):
         self.console = console
         self.dungeon = dungeon
         self.x1 = node.x
@@ -113,7 +112,6 @@ class Room:
         self.x2 = node.x + node.w
 
         self.y2 = node.y + node.h
-        self.map_size = map_size
         self._generate_room()
 
     def _generate_room(self):
