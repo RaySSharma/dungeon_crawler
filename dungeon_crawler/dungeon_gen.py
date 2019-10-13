@@ -2,7 +2,7 @@ import numpy as np
 import tcod.bsp
 import tcod.map
 
-from dungeon_crawler import AI, combat, config, characters
+from dungeon_crawler import AI, combat, config, objects
 
 
 class Dungeon:
@@ -15,6 +15,7 @@ class Dungeon:
         self.fov = self.dungeon.fov
         self.half_fov = self.dungeon.fov
         self.encounters = self._generate_encounters()
+        self.items = self._generate_items()
 
     @staticmethod
     def _generate_map():
@@ -50,22 +51,33 @@ class Dungeon:
         for room in self.rooms:
             num_monsters = np.random.randint(0, config.MAX_ROOM_MONSTERS)
             for i in range(num_monsters):
-                while True:
-                    x = np.random.randint(room.x1, room.x2)
-                    y = np.random.randint(room.y1, room.y2)
-                    if self.dungeon.walkable[x][y] and (
-                            x, y) not in monster_coords:
-                        monster_coords.append((x, y))
-                        break
-
-                ai = AI.BasicMonster()
-                combatant = combat.BasicCombat(hp=30, defense=2, power=5)
-                monster = characters.Monster(x, y,
-                                             color=config.COLOR_DARK_GROUND,
-                                             combatant=combatant, char='T',
-                                             blocks=True, ai=ai)
-                monsters.append(monster)
+                x = np.random.randint(room.x1 + 1, room.x2 - 1)
+                y = np.random.randint(room.y1 + 1, room.y2 - 1)
+                if self.dungeon.walkable[x][y] and (x,
+                                                    y) not in monster_coords:
+                    monster_coords.append((x, y))
+                    ai = AI.BasicMonster()
+                    combatant = combat.BasicCombat(hp=30, defense=2, power=5)
+                    monster = objects.Monster(x, y,
+                                              color=config.COLOR_DARK_GROUND,
+                                              combatant=combatant, char='T',
+                                              blocks=True, ai=ai)
+                    monsters.append(monster)
         return monsters
+
+    def _generate_items(self):
+        items, item_coords = [], []
+        for room in self.rooms:
+            num_items = np.random.randint(0, config.MAX_ROOM_ITEMS)
+
+            for i in range(num_items):
+                x = np.random.randint(room.x1 + 1, room.x2 - 1)
+                y = np.random.randint(room.y1 + 1, room.y2 - 1)
+                if self.dungeon.walkable[x][y] and (x, y) not in item_coords:
+                    item_coords.append((x, y))
+                    item = objects.Item(x, y, name='Healing Potion', char='!')
+                    items.append(item)
+        return items
 
 
 class Door:

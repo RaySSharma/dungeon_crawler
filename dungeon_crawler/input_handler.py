@@ -34,6 +34,16 @@ class InputHandler(tcod.event.EventDispatch):
             print('Exiting')
             raise SystemExit()
 
+        if (self.owner.game_state == 'playing') and config.DIAGONAL:
+                if scancode == tcod.event.SCANCODE_KP_7:
+                    self.owner.player.move_or_attack(-1, -1)
+                elif scancode == tcod.event.SCANCODE_KP_9:
+                    self.owner.player.move_or_attack(1, -1)
+                elif scancode == tcod.event.SCANCODE_KP_1:
+                    self.owner.player.move_or_attack(-1, 1)
+                elif scancode == tcod.event.SCANCODE_KP_3:
+                    self.owner.player.move_or_attack(1, 1)
+
         if self.owner.game_state == 'playing':
             if (scancode == tcod.event.SCANCODE_KP_8) or (
                     scancode == tcod.event.SCANCODE_UP):
@@ -48,15 +58,11 @@ class InputHandler(tcod.event.EventDispatch):
                     scancode == tcod.event.SCANCODE_RIGHT):
                 self.owner.player.move_or_attack(1, 0)
 
-            elif config.DIAGONAL:
-                if scancode == tcod.event.SCANCODE_KP_7:
-                    self.owner.player.move_or_attack(-1, -1)
-                elif scancode == tcod.event.SCANCODE_KP_9:
-                    self.owner.player.move_or_attack(1, -1)
-                elif scancode == tcod.event.SCANCODE_KP_1:
-                    self.owner.player.move_or_attack(-1, 1)
-                elif scancode == tcod.event.SCANCODE_KP_3:
-                    self.owner.player.move_or_attack(1, 1)
+            elif (scancode == tcod.event.SCANCODE_KP_ENTER) or (scancode == tcod.event.SCANCODE_RETURN):
+                for obj in self.owner.objects:
+                    if (obj.x == self.owner.player.x) and (obj.y == self.owner.player.y) and (obj.type == 'item'):
+                        obj.pick_up()
+                        break
             else:
                 self.owner.player_action = 'didnt-take-turn'
                 return

@@ -8,12 +8,13 @@ from dungeon_crawler import config
 
 class Character:
     def __init__(self, x, y, color=(100, 0, 0), combatant=None, char='@',
-                 blocks=False, character=None, stats=None, equipment=None,
+                 blocks=False, character=None, stats=None, inventory=None,
                  ai=None, state='alive'):
         self.owner = None
+        self.type = 'player'
         self.character = character
         self.stats = stats
-        self.equipment = equipment
+        self.inventory = inventory
         self.name = self.character['name']
         self.x = int(x)
         self.y = int(y)
@@ -64,10 +65,11 @@ class Monster:
     def __init__(self, x, y, color=(100, 0, 0), combatant=None, char='o',
                  blocks=True, ai=None, state='alive'):
         self.owner = None
+        self.type = 'monster'
         self.monster = self._generate()
         self.character = self.monster['character']
         self.stats = self.monster['stats']
-        self.equipment = self.monster['equipment']
+        self.inventory = self.monster['inventory']
         self.name = self.character['name']
         self.x = int(x)
         self.y = int(y)
@@ -144,3 +146,38 @@ class Monster:
         self.ai = None
         self.name = 'remains of ' + self.name
         self.state = 'dead'
+
+
+class Item:
+    def __init__(self, x, y, name=None, char='!', blocks=False,
+                 ai=None, combatant=None):
+        self.owner = None
+        self.type = 'item'
+        self.x = int(x)
+        self.y = int(y)
+        self.name = name
+        self.char = ord(char)
+        self.color = config.COLOR_ITEMS
+        self.state = None
+        self.blocks = blocks
+        self.ai = ai
+        self.combatant = combatant
+
+    def draw(self):
+        self.owner.owner.console.default_fg = self.color
+        if self.owner.half_fov[self.x][self.y]:
+            self.color = config.COLOR_ITEMS
+        else:
+            self.color = config.COLOR_DARK_GROUND
+        self.owner.owner.console.put_char(self.x, self.y, self.char,
+                                          tcod.BKGND_NONE)
+
+    def clear(self):
+        self.owner.owner.console.put_char(self.x, self.y, ord(' '),
+                                          tcod.BKGND_NONE)
+
+    def pick_up(self):
+        self.owner.owner.objects.remove(self)
+        self.owner = self.owner.owner.player
+        self.owner.inventory.append(self)
+        self.owner.owner.owner.gui.print('You picked up a', self.name, '!', color=tcod.green)

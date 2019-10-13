@@ -1,6 +1,6 @@
 import tcod
 import tcod.map
-from dungeon_crawler import config, combat, gui, generate_room, characters, input_handler
+from dungeon_crawler import config, combat, gui, dungeon_gen, objects, input_handler
 
 default_character = {
     'name': 'Ray Sharma',
@@ -18,7 +18,7 @@ default_stats = {
     'WIS': 10
 }
 
-default_equipment = ['Short Sword']
+default_inventory = ['Short Sword']
 
 
 class GameInstance:
@@ -33,12 +33,12 @@ class GameInstance:
         self.input_handler.owner = self
 
         combatant = combat.BasicCombat(hp=30, defense=2, power=5)
-        self.player = characters.Character(
+        self.player = objects.Character(
             config.SCREEN_WIDTH / 2, config.SCREEN_HEIGHT / 2,
             color=config.COLOR_PLAYER, combatant=combatant, char='@',
             blocks=True, character=default_character, stats=default_stats,
-            equipment=default_equipment)
-        self.dungeon = generate_room.Dungeon(self)
+            inventory=default_inventory)
+        self.dungeon = dungeon_gen.Dungeon(self)
 
         self.victory = False
         self.failure = False
@@ -91,9 +91,9 @@ class GameInstance:
                                                      color_ground,
                                                      tcod.BKGND_SET)
 
-        for obj in self.objects:
-            if obj.state == 'dead':
-                obj.draw()
+        [obj.draw() for obj in self.objects if obj.type == 'item']
+        [obj.draw() for obj in self.objects if obj.state == 'dead']
+        [obj.draw() for obj in self.objects if (obj.state == 'alive') and (obj != self.player)]
 
         for obj in self.objects:
             if (obj.state == 'alive') and (obj != self.player):
@@ -131,6 +131,9 @@ class GameInstance:
 
         for enc in self.dungeon.encounters:
             objects.append(enc)
+
+        for item in self.dungeon.items:
+            objects.append(item)
 
         for obj in objects:
             obj.owner = self.dungeon

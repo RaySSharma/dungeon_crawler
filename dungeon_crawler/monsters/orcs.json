@@ -14,7 +14,7 @@
             "INT": 6,
             "WIS": 6
         },
-        "equipment": [
+        "inventory": [
             "Short Sword"
         ]
     },
@@ -33,7 +33,7 @@
             "INT": 6,
             "WIS": 6
         },
-        "equipment": [
+        "inventory": [
             "Short Sword"
         ]
     },
@@ -52,7 +52,7 @@
             "INT": 6,
             "WIS": 6
         },
-        "equipment": [
+        "inventory": [
             "Short Sword"
         ]
     }

@@ -3,6 +3,8 @@ import tcod
 
 # Game
 DIAGONAL = True
+MAX_ROOM_ITEMS = 2
+MAX_ROOM_MONSTERS = 3
 
 # Colors
 COLOR_PLAYER = tcod.Color(200, 0, 0)
@@ -17,6 +19,7 @@ COLOR_EXPLORED_GROUND = tcod.darker_gray
 
 COLOR_DEATH = tcod.dark_red
 COLOR_MONSTERS = tcod.red
+COLOR_ITEMS = tcod.dark_violet
 
 COLOR_HP_FG = tcod.darker_red
 COLOR_HP_BG = tcod.darkest_red
@@ -44,11 +47,9 @@ BAR_WIDTH = 20
 PANEL_HEIGHT = SCREEN_HEIGHT - MAP_HEIGHT
 PANEL_Y = SCREEN_HEIGHT - PANEL_HEIGHT
 
-MAX_ROOM_MONSTERS = 3
-
 MSG_X = BAR_WIDTH + 3
 MSG_WIDTH = SCREEN_WIDTH - BAR_WIDTH - 10
-MSG_HEIGHT = PANEL_HEIGHT - 1
+MSG_HEIGHT = PANEL_HEIGHT - 2
 
-# Monsters
+# Directories
 MONSTER_DIR = path.join(path.dirname(__file__), 'monsters/')
