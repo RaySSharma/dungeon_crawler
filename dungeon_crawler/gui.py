@@ -32,9 +32,8 @@ class GUI:
     def render_messages(self, game_msgs):
         y = 1
         for (line, color) in game_msgs:
-            self.owner.panel.default_fg = color
             self.owner.panel.print(config.MSG_X, y, string=line,
-                                   alignment=tcod.LEFT)
+                                   alignment=tcod.LEFT, fg=color)
             y += 1
 
     def render_panel(self):
